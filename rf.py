@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # First random fourier feature mapping introduced in the paper
 def rff_1(X, D):
     """
