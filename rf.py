@@ -48,7 +48,7 @@ def bin_index(x, delta, u):
     :param x: Input vector, shape: (d, ). One row of input data matrix X.
     :param delta: Grid pitch parameters, shape: (d, ).
     :param u: Shift parameters, shape: (d, ).
-    :return: An index array that represents the bin, shape: (d, ).
+    :return: An index array that represents which bin x lies in, shape: (d, ).
     """
     return np.array([np.ceil((x - u) / delta).astype(int)])
 
@@ -61,18 +61,28 @@ def rbf(X, P):
     :return:
     """
     N, d = X.shape
-    Z = np.zeros((N, P))
-    index_matrix = np.zeros((N, d))
-    gamma_dist = Gamma(a=0) # The lower bound of the support of the distribution, i.e., a, is set to 0
+    indices = np.zeros((N, d))  # Matrix that stores bin indices for all training data point
+    gamma_dist = Gamma(a=0)  # The lower bound of the support of the distribution is 0, i.e., a, is set to 0
+    Z = []
 
     for p in range(P):
         delta = gamma_dist.rvs(size=d) # Sample d delta from this distribution
         u = np.random.uniform(0, delta, size=d)
 
         for i in range(N):
-            index_matrix[i, :] = bin_index(X[i, :], delta, u)
+            indices[i, :] = bin_index(X[i, :], delta, u)
 
-        # Eliminates unoccupied bins from the representation
+        unique_indices = np.unique(indices, axis=0)  # Eliminates unoccupied bins from the representation
+        length = unique_indices.shape[0]
+        idx_to_pos = {tuple(idx): pos for pos, idx in enumerate(unique_indices)}
+        one_hot_vectors = np.zeros((N, length), dtype=int)  # Each row corresponds to a z_p(x) for a specific x
+        for i in range(N):
+            one_hot_vectors[i, idx_to_pos[tuple(indices[i, :])]] = 1
+
+        Z.append(one_hot_vectors)
+
+    return np.hstack(Z) / np.sqrt(P)
+
 
 
 
