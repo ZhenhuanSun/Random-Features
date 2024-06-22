@@ -1,13 +1,13 @@
 import numpy as np
 from scipy.stats import rv_continuous
-from collections import defaultdict
+
 
 # First random fourier feature mapping introduced in the paper
 def rff_1(X, D):
     """
     :param X: Input data matrix, shape: (N, d)
     :param D: Dimensionality of the randomized feature map
-    :return: Scaled randomized fourier feature map matrix Z, shape: (N, 2D). Each row of Z corresponds to a randomized fourier
+    :return: Randomized fourier feature map matrix Z, shape: (N, 2D). Each row of Z corresponds to a randomized fourier
     feature map for a data point in X.
     """
     d = X.shape[1]
@@ -25,7 +25,7 @@ def rff_2(X, D):
     """
     :param X: Input data matrix, shape: (N, d)
     :param D: Dimensionality of the randomized feature map
-    :return: Scaled randomized fourier feature map matrix Z, shape: (N, D). Each row of Z corresponds to a randomized fourier
+    :return: Randomized fourier feature map matrix Z, shape: (N, D). Each row of Z corresponds to a randomized fourier
     feature map for a data point in X.
     """
     N, d = X.shape
@@ -57,8 +57,10 @@ def bin_index(x, delta, u):
 def rbf(X, P):
     """
     :param X: Input data matrix, shape: (N, d)
-    :param P: Dimensionality of the randomized feature map
-    :return:
+    :param P: Number of samples we draw to approximate the kernel.
+    :return: Randomized binning feature map matrix Z, shape: (N, \sum_{i=1}^P M_i), where M_i is the number of unique
+    bin indices in the ith iteration.
+
     """
     N, d = X.shape
     indices = np.zeros((N, d))  # Matrix that stores bin indices for all training data point
@@ -66,7 +68,7 @@ def rbf(X, P):
     Z = []
 
     for p in range(P):
-        delta = gamma_dist.rvs(size=d) # Sample d delta from this distribution
+        delta = gamma_dist.rvs(size=d)  # Sample d delta from this distribution
         u = np.random.uniform(0, delta, size=d)
 
         for i in range(N):
@@ -74,7 +76,8 @@ def rbf(X, P):
 
         unique_indices = np.unique(indices, axis=0)  # Eliminates unoccupied bins from the representation
         length = unique_indices.shape[0]
-        idx_to_pos = {tuple(idx): pos for pos, idx in enumerate(unique_indices)}
+        idx_to_pos = {tuple(idx): pos for pos, idx in
+                      enumerate(unique_indices)}  # Numpy array, i.e., idx, is not hashable
         one_hot_vectors = np.zeros((N, length), dtype=int)  # Each row corresponds to a z_p(x) for a specific x
         for i in range(N):
             one_hot_vectors[i, idx_to_pos[tuple(indices[i, :])]] = 1
@@ -82,9 +85,3 @@ def rbf(X, P):
         Z.append(one_hot_vectors)
 
     return np.hstack(Z) / np.sqrt(P)
-
-
-
-
-
-
