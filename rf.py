@@ -37,7 +37,7 @@ def rff_2(X, D):
     return Z / np.sqrt(D)
 
 
-# Gamma distribution arises from laplacian kernel
+# Gamma distribution arises from the laplacian kernel
 class Gamma(rv_continuous):
     def _pdf(self, delta):
         return delta * np.exp(-delta)
@@ -59,7 +59,8 @@ def rbf(X, P):
     :param X: Input data matrix, shape: (N, d)
     :param P: Number of samples we draw to approximate the kernel.
     :return: Randomized binning feature map matrix Z, shape: (N, \sum_{i=1}^P M_i), where M_i is the number of unique
-    bin indices in the ith iteration.
+    bin indices in the ith iteration. Each row of Z corresponds to a randomized binning feature map for a data point in
+    X.
 
     """
     N, d = X.shape
