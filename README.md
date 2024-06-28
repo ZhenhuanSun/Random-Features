@@ -6,5 +6,5 @@
 ### Gaussian kernel approximated by the second random fourier feature:
 ![](figures/Figure_2.png)
 
-### Laplacian kernel approximated by the random binning feature introduced in the paper:
+### Laplacian kernel approximated by the random binning feature:
 ![](figures/Figure_3.png)
